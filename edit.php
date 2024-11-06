@@ -1,9 +1,9 @@
 <?php
 // edit.php
-$servername = "localhost"; 
-$username = "root"; 
-$password = ""; 
-$dbname = "eco_community"; 
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "eco_community";
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
@@ -15,7 +15,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $progress = $_POST['progress'];
 
     $sql = "UPDATE sustainability_actions SET action_name='$action_name', description='$description', progress='$progress' WHERE id=$id";
-    
+
     if ($conn->query($sql) === TRUE) {
         header("Location: index.php");
         exit();
@@ -30,10 +30,12 @@ $row = $result->fetch_assoc();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Edit Action</title>
 </head>
+
 <body>
     <h1>Edit Action</h1>
     <form method="POST">
@@ -46,6 +48,7 @@ $row = $result->fetch_assoc();
         <input type="submit" value="Update">
     </form>
 </body>
+
 </html>
 
 <?php

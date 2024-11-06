@@ -24,9 +24,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Update Record</title>
 </head>
+
 <body>
     <h2>Update Action</h2>
     <form method="post" action="">
@@ -37,6 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="submit" value="Update">
     </form>
 </body>
+
 </html>
 
 <a href="index.php">Return to Home</a> <!-- Add a link to the home page -->

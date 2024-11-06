@@ -11,9 +11,11 @@ if (!$result) {
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>View Deleted Actions</title>
 </head>
+
 <body>
     <h2>Deleted Actions List</h2>
     <table border="1">
@@ -28,15 +30,15 @@ if (!$result) {
         </tr>
         <?php
         if ($result->num_rows > 0) {
-            while($row = $result->fetch_assoc()) {
+            while ($row = $result->fetch_assoc()) {
                 echo "<tr>";
-                echo "<td>" . $row["id"]. "</td>";
-                echo "<td>" . $row["name"]. "</td>";
-                echo "<td>" . $row["email"]. "</td>";
-                echo "<td>" . $row["action_description"]. "</td>";
-                echo "<td>" . $row["progress_status"]. "</td>";
-                echo "<td>" . $row["created_at"]. "</td>";
-                echo "<td>" . $row["deleted_at"]. "</td>";
+                echo "<td>" . $row["id"] . "</td>";
+                echo "<td>" . $row["name"] . "</td>";
+                echo "<td>" . $row["email"] . "</td>";
+                echo "<td>" . $row["action_description"] . "</td>";
+                echo "<td>" . $row["progress_status"] . "</td>";
+                echo "<td>" . $row["created_at"] . "</td>";
+                echo "<td>" . $row["deleted_at"] . "</td>";
                 echo "</tr>";
             }
         } else {
@@ -45,6 +47,7 @@ if (!$result) {
         ?>
     </table>
 </body>
+
 </html>
 
 <a href="index.php">Return to Home</a> <!-- Add a link to the home page -->

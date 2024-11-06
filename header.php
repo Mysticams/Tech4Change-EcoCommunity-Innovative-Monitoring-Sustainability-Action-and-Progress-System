@@ -68,8 +68,10 @@
             text-decoration: none;
             padding: 30px;
             color: #FF00BF;
-            margin: 0 15px; /* Add space between the links */
-            text-decoration: none; /* Remove underline */
+            margin: 0 15px;
+            /* Add space between the links */
+            text-decoration: none;
+            /* Remove underline */
             font-size: 18px;
         }
 
@@ -96,7 +98,8 @@
             padding: 5px;
             position: absolute;
             top: 15px;
-            right: 15px; /* Left align the hamburger icon */
+            right: 15px;
+            /* Left align the hamburger icon */
         }
 
         label[for="menu"] div {

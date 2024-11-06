@@ -13,12 +13,12 @@ $project = [
 
 if (isset($_GET['id'])) {
     $id = $_GET['id'];
-    
+
     // Ensure $id is numeric to prevent SQL injection
     if (is_numeric($id)) {
         $sql = "SELECT * FROM sustainability_projects WHERE id='$id'";
         $result = $conn->query($sql);
-        
+
         // Check if the query was successful and if a project was found
         if ($result && $result->num_rows > 0) {
             $project = $result->fetch_assoc(); // Fetch project data
@@ -37,7 +37,7 @@ if (isset($_GET['id'])) {
 
 if (isset($_POST['submit'])) {
     // Ensure that the ID is retained for the update process
-    $id = $_POST['id']; 
+    $id = $_POST['id'];
     $name = $_POST['name'];
     $description = $_POST['description'];
     $start_date = $_POST['start_date'];

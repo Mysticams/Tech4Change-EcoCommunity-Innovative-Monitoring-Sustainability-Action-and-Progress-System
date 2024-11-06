@@ -19,9 +19,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Create Record</title>
 </head>
+
 <body>
     <h2>Create New Action</h2>
     <form method="post" action="">
@@ -32,6 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <input type="submit" value="Create">
     </form>
 </body>
+
 </html>
 
 <a href="index.php">Return to Home</a> <!-- Add a link to the home page -->

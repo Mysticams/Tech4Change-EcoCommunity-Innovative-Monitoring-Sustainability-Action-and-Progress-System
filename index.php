@@ -1,55 +1,69 @@
 <?php
-session_start(); // Start a session
+session_start();
 
-// Dummy user data (for demonstration purposes)
-$users = [
-    'test' => 'password',
-    'admin' => 'adminpass'
-];
+class User {
+    protected $username;
+    protected $password;
+    protected $role;
+    protected $users = [
+        'test' => 'password',
+        'admin' => 'adminpass'
+    ];
 
-// Variable to hold the error message
-$errorMsg = '';
+    public function __construct($username, $password, $role) {
+        $this->username = $username;
+        $this->password = $password;
+        $this->role = $role;
+    }
 
-// Handle form submission for login
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['username']) && isset($_POST['password'])) {
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $role = $_POST['role'] ?? '';
-
-    // Check if the username exists and the password matches
-    if (isset($users[$username]) && $users[$username] === $password) {
-        // Successful login
-        $_SESSION['username'] = $username; // Store username in session
-        $_SESSION['role'] = $role; // Store role in session if needed
-        header("Location: dashboard.php"); // Redirect to a dashboard or another page
-        exit();
-    } else {
-        // Invalid credentials
-        $errorMsg = 'Invalid credentials';
+    protected function userExists($username) {
+        return isset($this->users[$username]);
     }
 }
 
-// Handle form submission for sign up
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signupUsername']) && isset($_POST['signupPassword'])) {
-    $signupUsername = $_POST['signupUsername'] ?? '';
-    $signupPassword = $_POST['signupPassword'] ?? '';
-    $signupEmail = $_POST['signupEmail'] ?? '';
-    $signupRole = $_POST['signupRole'] ?? '';
+class LoginUser extends User {
+    public function authenticate() {
+        if ($this->userExists($this->username) && $this->users[$this->username] === $this->password) {
+            $_SESSION['username'] = $this->username;
+            $_SESSION['role'] = $this->role;
+            header("Location: dashboard.php");
+            exit();
+        } else {
+            return 'Invalid credentials';
+        }
+    }
+}
 
-    // Simple validation: Check if username already exists
-    if (array_key_exists($signupUsername, $users)) {
-        $errorMsg = 'Username already exists. Please choose a different one.';
-    } else {
-        // Register the user
-        $users[$signupUsername] = $signupPassword; // Store password (in a real app, hash it)
-        
-        // Set session variables
-        $_SESSION['username'] = $signupUsername; // Store username in session
-        $_SESSION['role'] = $signupRole; // Store role in session if needed
+class SignupUser extends User {
+    private $email;
 
-        // Redirect to the dashboard
-        header("Location: dashboard.php"); // Redirect to the dashboard
-        exit();
+    public function __construct($username, $password, $role, $email) {
+        parent::__construct($username, $password, $role);
+        $this->email = $email;
+    }
+
+    public function register() {
+        if ($this->userExists($this->username)) {
+            return 'Username already exists. Please choose a different one.';
+        } else {
+            $this->users[$this->username] = $this->password;
+            $_SESSION['username'] = $this->username;
+            $_SESSION['role'] = $this->role;
+            header("Location: dashboard.php");
+            exit();
+        }
+    }
+}
+
+$errorMsg = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['username']) && isset($_POST['password'])) {
+        $loginUser = new LoginUser($_POST['username'], $_POST['password'], $_POST['role']);
+        $errorMsg = $loginUser->authenticate();
+    } elseif (isset($_POST['signupUsername']) && isset($_POST['signupPassword'])) {
+        $signupUser = new SignupUser($_POST['signupUsername'], $_POST['signupPassword'], $_POST['signupRole'], $_POST['signupEmail']);
+        $errorMsg = $signupUser->register();
     }
 }
 ?>
@@ -59,7 +73,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signupUsername']) && 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login & Sign Up</title>
+    <title>Login & Register</title>
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
@@ -79,10 +93,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signupUsername']) && 
                 </select>
                 <button type="submit">Login</button>
             </form>
-            <div class="toggle-link" id="toSignUp">Don't have an account? Sign Up</div>
+            <div class="toggle-link" id="toRegister">Don't have an account? Register</div>
         </div>
         <div id="signUpFormContainer" style="display: none;">
-            <h2>Sign Up</h2>
+            <h2>Register</h2>
             <?php if ($errorMsg): ?>
                 <p class="error" style="color: red; text-align: center;"><?= htmlspecialchars($errorMsg) ?></p>
             <?php endif; ?>
@@ -102,8 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signupUsername']) && 
     </div>
 
     <script>
-        // JavaScript to toggle forms
-        document.getElementById('toSignUp').onclick = function() {
+        document.getElementById('toRegister').onclick = function() {
             document.getElementById('loginFormContainer').style.display = 'none';
             document.getElementById('signUpFormContainer').style.display = 'block';
         };

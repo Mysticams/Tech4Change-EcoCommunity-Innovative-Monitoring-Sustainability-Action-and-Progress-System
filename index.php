@@ -1,81 +1,140 @@
 <?php
 session_start();
 
-class User {
+include "./database.php";
+
+class User
+{
     protected $username;
     protected $password;
+    protected $email;
     protected $role;
-    protected $users = [
-        'test' => 'password',
-        'admin' => 'adminpass'
-    ];
+    protected $user = [];
+    protected $pdo = null; 
 
-    public function __construct($username, $password, $role) {
+    public function __construct($username, $password, $role = "", $email = "")
+    {
+        $db = new Database();
+        $con = $db->connect();
+        $this->pdo = $con;
+
         $this->username = $username;
         $this->password = $password;
+        $this->email = $email;
         $this->role = $role;
+
+        $stmt = $con->prepare("SELECT * FROM user WHERE `username`=? AND `password`=? LIMIT 1");
+        $stmt->execute([$username, $password]);
+        $this->user = $stmt->fetch();
     }
 
-    protected function userExists($username) {
-        return isset($this->users[$username]);
+    protected function userExists($username)
+    {
+        return isset($this->user["username"]);
     }
-}
 
-class LoginUser extends User {
-    public function authenticate() {
-        if ($this->userExists($this->username) && $this->users[$this->username] === $this->password) {
-            $_SESSION['username'] = $this->username;
-            $_SESSION['role'] = $this->role;
-            header("Location: dashboard.php");
-            exit();
-        } else {
+    public function LoginUser()
+    {
+        if (empty($this->user)) {
             return 'Invalid credentials';
         }
-    }
-}
-
-class SignupUser extends User {
-    private $email;
-
-    public function __construct($username, $password, $role, $email) {
-        parent::__construct($username, $password, $role);
-        $this->email = $email;
+        $_SESSION['username'] = $this->username;
+        $_SESSION["user_data"] = $this->user;
+        $_SESSION['role'] = $this->role;
+        header("Location: dashboard.php");
+        exit();
     }
 
-    public function register() {
-        if ($this->userExists($this->username)) {
-            return 'Username already exists. Please choose a different one.';
-        } else {
-            $this->users[$this->username] = $this->password;
-            $_SESSION['username'] = $this->username;
-            $_SESSION['role'] = $this->role;
-            header("Location: dashboard.php");
-            exit();
+    function RegisterUser()
+    {
+        if (!empty($this->user)) {
+        return "User already exist";
         }
+
+        try {
+            $this->pdo->beginTransaction();
+            $stmt = $this->pdo->prepare("INSERT INTO `user`(`username`, `password`, `email`, `role`) VALUES 
+                (?, ?, ?, ?)");
+            $stmt->execute([
+                $this->username,
+                $this->password,
+                $this->email,
+                $this->role
+            ]);
+            $this->pdo->commit();
+            return "Register Success";
+        } catch (Exception $th) {
+            $this->pdo->rollBack();
+            return $th->getMessage();
+        }
+        
+        exit();
     }
 }
+
+// class LoginUser extends User
+// {
+//     public function authenticate()
+//     {
+//         if ($this->userExists($this->username) && $this->user[$this->username] === $this->password) {
+//             $_SESSION['username'] = $this->username;
+//             $_SESSION['role'] = $this->role;
+//             header("Location: dashboard.php");
+//             exit();
+//         } else {
+//             return 'Invalid credentials';
+//         }
+//     }
+// }
+
+// class SignupUser extends User
+// {
+//     private $email;
+
+//     public function __construct($username, $password, $role, $email)
+//     {
+//         parent::__construct($username, $password, $role);
+//         $this->email = $email;
+//     }
+
+//     public function register()
+//     {
+//         if ($this->userExists($this->username)) {
+//             return 'Username already exists. Please choose a different one.';
+//         } else {
+//             $this->users[$this->username] = $this->password;
+//             $_SESSION['username'] = $this->username;
+//             $_SESSION['role'] = $this->role;
+//             header("Location: dashboard.php");
+//             exit();
+//         }
+//     }
+// }
 
 $errorMsg = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['username']) && isset($_POST['password'])) {
-        $loginUser = new LoginUser($_POST['username'], $_POST['password'], $_POST['role']);
-        $errorMsg = $loginUser->authenticate();
-    } elseif (isset($_POST['signupUsername']) && isset($_POST['signupPassword'])) {
-        $signupUser = new SignupUser($_POST['signupUsername'], $_POST['signupPassword'], $_POST['signupRole'], $_POST['signupEmail']);
-        $errorMsg = $signupUser->register();
+    if (isset($_POST["LOGIN"])) {
+        $loginUser = new User($_POST['username'], $_POST['password'], $_POST['role']);
+        $errorMsg = $loginUser->LoginUser();
+    }
+    if (isset($_POST['REGISTER'])) {
+        $signupUser = new User($_POST['signupUsername'], $_POST['signupPassword'], $_POST['signupRole'], $_POST['signupEmail']);
+        $errorMsg = $signupUser->RegisterUser();
     }
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login & Register</title>
     <link rel="stylesheet" href="index.css">
 </head>
+
 <body>
     <div class="container" id="formContainer">
         <div id="loginFormContainer">
@@ -91,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <option value="admin">Admin</option>
                     <option value="user">User</option>
                 </select>
-                <button type="submit">Login</button>
+                <input type="submit" name="LOGIN" value="Login" />
             </form>
             <div class="toggle-link" id="toRegister">Don't have an account? Register</div>
         </div>
@@ -109,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <option value="admin">Admin</option>
                     <option value="user">User</option>
                 </select>
-                <button type="submit">Register</button>
+                <input type="submit" name="REGISTER" value="Register" />
             </form>
             <div class="toggle-link" id="toLogin">Already have an account? Login</div>
         </div>
@@ -126,4 +185,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         };
     </script>
 </body>
+
 </html>

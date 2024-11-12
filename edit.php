@@ -49,10 +49,11 @@ $row = $result->fetch_assoc();
     </form>
 </body>
 
+
+<a href="index.php">Return to Home</a> <!-- Add a link to the home page -->
+
 </html>
 
 <?php
 $conn->close();
 ?>
-
-<a href="index.php">Return to Home</a> <!-- Add a link to the home page -->

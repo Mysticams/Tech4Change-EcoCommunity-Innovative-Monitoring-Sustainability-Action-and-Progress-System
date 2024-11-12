@@ -42,8 +42,8 @@ $result = $conn->query($sql);
         }
         ?>
     </table>
+
+    <a href="index.php" class="cta-button"><button style="background-color: #FF00BF; color: white; padding: 5px 10px; text-decoration: none; font-size: 1.0em; border-radius: 5px;" onclick="window.history.back()">Return</button></a>
 </body>
 
 </html>
-
-<a href="index.php">Return to Home</a> <!-- Add a link to the home page -->

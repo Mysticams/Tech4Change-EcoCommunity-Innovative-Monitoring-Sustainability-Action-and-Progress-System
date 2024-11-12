@@ -38,8 +38,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         Progress Status: <input type="text" name="progress_status" value="<?php echo $row['progress_status']; ?>"><br><br>
         <input type="submit" value="Update">
     </form>
+
+    <a href="index.php">Return to Home</a> <!-- Add a link to the home page -->
 </body>
 
 </html>
-
-<a href="index.php">Return to Home</a> <!-- Add a link to the home page -->

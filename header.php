@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="style.css">
     <style>
         /* General Styles */
-        html, body {
+        html,
+        body {
             margin: 0;
             padding: 0;
             height: 100%;
@@ -20,7 +21,7 @@
             background-attachment: fixed;
             color: white;
         }
-        
+
 
         .content {
             text-align: center;
@@ -188,21 +189,21 @@
     <!-- HEADER END -->
 
     <!-- Welcome Content -->
-     
+
     <div class="content">
         <h1>Welcome to Tech4Change!</h1>
-        <p>We've developed an Innovative Monitoring Sustainability Action and Progress System 
+        <p>We've developed an Innovative Monitoring Sustainability Action and Progress System
             that <br>enables individuals, organizations, and communities to make informed decisions <br>for a greener future.
             Let's make a difference together through technology.</p>
     </div>
 
-   
+
     <div class="hero1">
-            <a href="index1.php" class="cta-button"> 
+        <a href="index1.php" class="cta-button">
             <button style="background-color: #008000; color: #FFD47F; padding: 10px 20px; font-family: Corbel; font-weight: bold; font-size: 1.2em; border-radius: 5px; border: none; cursor: pointer; display: block; margin: 0 auto;" onclick="window.history.back()">Get Started</button>
-            </a>
-        </div>
-    
+        </a>
+    </div>
+
 </body>
 
 </html>

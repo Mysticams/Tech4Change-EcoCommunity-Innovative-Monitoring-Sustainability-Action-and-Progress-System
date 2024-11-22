@@ -64,7 +64,7 @@
 
     <body>
         <div class="container">
-            <img src="about.webp" alt="About Image">
+            <img src="about.jpg" alt="About Image">
             <h1>About Us</h1>
             <p>At Tech4Change, we are dedicated to driving sustainability and progress through innovative technology solutions.
                 Our eco-community approach empowers individuals and organizations to engage with cutting-edge monitoring systems

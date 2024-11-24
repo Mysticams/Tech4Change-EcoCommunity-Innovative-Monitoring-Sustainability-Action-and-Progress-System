@@ -14,7 +14,7 @@
         }
 
         body {
-            background-image: url('bg1.webp');
+            background-image: url('img/bg1.webp');
             /* Path to your image */
             background-size: cover;
             /* Ensures the image covers the entire screen */
@@ -69,7 +69,7 @@
         <div class="hero">
             <h1>Leading the Charge in Sustainable Development</h1>
             <p>Advanced Monitoring Solutions for Climate Action</p>
-            <a href="index.php" class="cta-button">Get Started</a>
+            <a href="game.php" class="cta-button">Get Started</a>
         </div>
     </body>
 

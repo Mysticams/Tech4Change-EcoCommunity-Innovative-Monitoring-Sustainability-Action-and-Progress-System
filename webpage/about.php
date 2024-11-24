@@ -20,7 +20,7 @@
                 justify-content: center;
                 align-items: center;
                 font-family: Copperplate;
-                background-image: url('bg2.jpg');
+                background-image: url('img/bg2.jpg');
                 background-size: cover;
                 background-position: center;
                 background-repeat: no-repeat;

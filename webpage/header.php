@@ -199,7 +199,7 @@
 
 
     <div class="hero1">
-        <a href="index.php" class="cta-button">
+        <a href="login.php" class="cta-button">
             <button style="background-color: #008000; color: #FFD47F; padding: 10px 20px; font-family: Corbel; font-weight: bold; font-size: 1.2em; border-radius: 5px; border: none; cursor: pointer; display: block; margin: 0 auto;" onclick="window.history.back()">Get Started</button>
         </a>
     </div>

@@ -53,6 +53,7 @@ $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <br>
         <button type="submit">Send</button>
     </form>
+    <a href="userDashboard.php" class="cta-button"><button style="background-color: #FF00BF; color: white; padding: 5px 10px; text-decoration: none; font-size: 1.0em; border-radius: 5px;" onclick="window.history.back()">Return</button></a>
 </body>
 </html>
 

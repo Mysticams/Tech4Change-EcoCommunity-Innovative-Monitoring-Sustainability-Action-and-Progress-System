@@ -16,21 +16,14 @@ foreach ($moodStats as $stat) {
     $totalCount += $stat['count'];
 }
 
-// Calculate percentages and cumulative angles
-$angles = [];
-$cumulativeAngle = 0;
+// Prepare data for Chart.js
+$labels = [];
+$data = [];
+$colors = ['#FF00BF', '#FF7F00', '#FFD700', '#00FFBF', '#0080FF'];
 
-foreach ($moodStats as $stat) {
-    $percentage = ($stat['count'] / $totalCount) * 100;
-    $angle = ($percentage / 100) * 360; // Convert to degrees
-    $angles[] = [
-        'mood' => $stat['mood'],
-        'count' => $stat['count'],
-        'percentage' => $percentage,
-        'startAngle' => $cumulativeAngle,
-        'endAngle' => $cumulativeAngle + $angle,
-    ];
-    $cumulativeAngle += $angle;
+foreach ($moodStats as $index => $stat) {
+    $labels[] = $stat['mood'];
+    $data[] = $stat['count'];
 }
 ?>
 
@@ -52,22 +45,11 @@ foreach ($moodStats as $stat) {
             color: #333;
         }
 
-        .pie-chart {
+        .chart-container {
             position: relative;
             width: 300px;
             height: 300px;
             margin: 20px auto;
-            border-radius: 50%;
-            background: conic-gradient(
-                <?php
-                $colors = ['#FF00BF', '#FF7F00', '#FFD700', '#00FFBF', '#0080FF'];
-                foreach ($angles as $index => $angle) {
-                    $color = $colors[$index % count($colors)];
-                    echo "$color {$angle['startAngle']}deg, $color {$angle['endAngle']}deg, ";
-                }
-                ?>
-                #f9f9f9 360deg
-            );
         }
 
         .legend {
@@ -104,17 +86,20 @@ foreach ($moodStats as $stat) {
             cursor: pointer;
         }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
 <h1>Mood Analytics - Pie Chart</h1>
-<div class="pie-chart"></div>
+<div class="chart-container">
+    <canvas id="moodChart"></canvas>
+</div>
 
 <div class="legend">
-    <?php foreach ($angles as $index => $angle): ?>
+    <?php foreach ($labels as $index => $label): ?>
         <div class="legend-item">
             <div class="legend-color" style="background-color: <?= $colors[$index % count($colors)]; ?>"></div>
-            <span><?= $angle['mood'] ?> (<?= round($angle['percentage'], 1) ?>%)</span>
+            <span><?= $label ?> (<?= round(($data[$index] / $totalCount) * 100, 1) ?>%)</span>
         </div>
     <?php endforeach; ?>
 </div>
@@ -122,10 +107,32 @@ foreach ($moodStats as $stat) {
 <h2>Total Trees Planted: <?= $treeCount ?> 🌳</h2>
 
 <div class="cta-button">
-    <a href="header.php">
+    <a href="adminDashboard.php">
         <button onclick="window.history.back()">Return</button>
     </a>
 </div>
+
+<script>
+    const ctx = document.getElementById('moodChart').getContext('2d');
+    const moodChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: <?= json_encode($labels) ?>,
+            datasets: [{
+                data: <?= json_encode($data) ?>,
+                backgroundColor: <?= json_encode($colors) ?>
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false // We are using custom legend
+                }
+            }
+        }
+    });
+</script>
 
 </body>
 </html>

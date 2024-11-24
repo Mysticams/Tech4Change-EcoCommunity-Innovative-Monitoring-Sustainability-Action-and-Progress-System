@@ -50,11 +50,7 @@ $treeCount = $mood->getTreeCount();
     <!-- Display the total trees planted -->
     <h2>Total Trees Planted So Far: <?php echo $treeCount ?? 0; ?> 🌳</h2>
 
-<<<<<<< HEAD
     <a href="adminDashboard.php.php" class="cta-button"><button style="background-color: #FF00BF; color: white; padding: 5px 10px; text-decoration: none; font-size: 1.0em; border-radius: 5px;" onclick="window.history.back()">Return</button></a>
-=======
-    <a href="action.php" class="cta-button"><button style="background-color: #FF00BF; color: white; padding: 5px 10px; text-decoration: none; font-size: 1.0em; border-radius: 5px;" onclick="window.history.back()">Return</button></a>
->>>>>>> fee35ec (added mood tracker and updated files)
 </body>
 
 </html>

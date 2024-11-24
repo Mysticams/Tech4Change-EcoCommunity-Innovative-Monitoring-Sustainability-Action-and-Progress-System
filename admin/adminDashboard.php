@@ -11,7 +11,6 @@
     <a href="stats.php">View Planted Tree Status</a> <br><br>
     <a href="admin_chat.php">Admin Chat</a> <br><br>
     <a href="list.php">Project List</a> <br><br>
-    <a href="stats.php">Planted Trees Status</a> <br><br>
     </a>
 
 </body>

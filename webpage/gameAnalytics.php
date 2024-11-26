@@ -61,7 +61,7 @@ foreach ($analytics_data as $action) {
     </div>
 
     <div class="hero1">
-            <a href="header.php" class="cta-button" button style="background-color: #FF00BF; color: white; padding: 5px 10px; text-decoration: none; font-size: 1.0em; border-radius: 5px;" onclick="window.history.back()">Return</button></a>
+            <a href="home.php" class="cta-button" button style="background-color: #FF00BF; color: white; padding: 5px 10px; text-decoration: none; font-size: 1.0em; border-radius: 5px;" onclick="window.history.back()">Return</button></a>
         </div>
 </div>
 

@@ -87,18 +87,20 @@ function logAction($item, $selected_bin, $correct_bin) {
             height: 100%;
             font-family: Arial, sans-serif;
             background-color: #e0f7fa;
-            text-align: center;
-            padding: 50px;
             background-image: url('img/game.avif');
             background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
         }
 
         .container {
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.8);
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            display: inline-block;
+            width: 400px;
         }
 
         h1 {
@@ -108,6 +110,7 @@ function logAction($item, $selected_bin, $correct_bin) {
         .item {
             font-size: 24px;
             color: #d32f2f;
+            margin-bottom: 20px;
         }
 
         .bins {
@@ -145,11 +148,25 @@ function logAction($item, $selected_bin, $correct_bin) {
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s;
-        
         }
 
         button:hover {
             background-color: #d32f2f;
+        }
+
+        .hero1 a {
+            background-color: #FF00BF;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            font-size: 1em;
+            border-radius: 5px;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        .hero1 a:hover {
+            background-color: #D400A8;
         }
 
     </style>
@@ -176,9 +193,8 @@ function logAction($item, $selected_bin, $correct_bin) {
     </div>
 
     <div class="hero1">
-            <a href="header.php" class="cta-button" button style="background-color: #FF00BF; color: white; padding: 5px 10px; text-decoration: none; font-size: 1.0em; border-radius: 5px;" onclick="window.history.back()">Return</button></a>
-        </div>
-
+        <a href="home.php" class="cta-button" onclick="window.history.back()">Return</a>
+    </div>
 </div>
 
 </body>

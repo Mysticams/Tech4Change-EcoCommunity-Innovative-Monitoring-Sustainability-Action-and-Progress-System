@@ -12,6 +12,7 @@ if (isset($_SESSION['score'])) {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,6 +23,12 @@ if (isset($_SESSION['score'])) {
             background-color: #e0f7fa;
             text-align: center;
             padding: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 50vh;
+            margin: 0;
         }
 
         h1 {
@@ -31,9 +38,17 @@ if (isset($_SESSION['score'])) {
         .score {
             font-size: 30px;
             color: #388e3c;
+            margin: 20px;
         }
 
-        button {
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .button {
             background-color: #4caf50;
             color: white;
             padding: 10px 20px;
@@ -42,29 +57,52 @@ if (isset($_SESSION['score'])) {
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            width: 200px;
         }
 
-        button:hover {
+        .button:hover {
             background-color: #388e3c;
         }
+
+        .button.return {
+            background-color: #FF00BF;
+        }
+
+        .button.return:hover {
+            background-color: #D400A8;
+        }
+
+        form {
+            display: inline-block;
+        }
+
     </style>
 </head>
+
 <body>
 
     <h1>Game Over</h1>
     <div class="score">
         <p>Your final score is: <?php echo $final_score; ?></p>
     </div>
-    <form action="game.php" method="GET">
-        <button type="submit">Restart Game</button>
-    </form>
 
-    <form action="gameAnalytics.php" method="GET">
-        <button type="submit">Game Analytics</button>
-    </form>
+    <div class="button-container">
+        <!-- Restart Game Button -->
+        <form action="game.php" method="GET" style="display: inline;">
+            <button type="submit" class="button">Restart Game</button>
+        </form>
 
-    <div class="hero1">
-            <a href="home.php" class="cta-button" button style="background-color: #FF00BF; color: white; padding: 5px 10px; text-decoration: none; font-size: 1.0em; border-radius: 5px;" onclick="window.history.back()">Return</button></a>
-        </div>
+        <!-- Game Analytics Button -->
+        <form action="gameAnalytics.php" method="GET" style="display: inline;">
+            <button type="submit" class="button">Game Analytics</button>
+        </form>
+
+        <!-- Return to Home Button -->
+        <a href="home.php" class="button return">Return</a>
+    </div>
+
 </body>
+
 </html>

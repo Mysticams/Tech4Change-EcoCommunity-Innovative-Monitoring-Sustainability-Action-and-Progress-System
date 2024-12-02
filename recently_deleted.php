@@ -2,22 +2,21 @@
 require_once 'Database.php';
 require_once 'CrudOperations.php';
 
-// Initialize the database connection and project object
 $db = (new Database())->connect();
 $project = new Project($db);
 
-// Fetch recently deleted projects (within the last 30 days)
-$recentlyDeletedProjects = $project->readRecentlyDeleted(30); // You can adjust the number of days
+// Fetch recently deleted projects (last 30 days)
+$recentlyDeletedProjects = $project->readRecentlyDeleted(30);
 
-// Prepare data for the graph
-$chartData = [];
-if ($recentlyDeletedProjects && count($recentlyDeletedProjects) > 0) {
-    foreach ($recentlyDeletedProjects as $proj) {
-        $chartData[] = [
-            'title' => htmlspecialchars($proj['title']),
-            'progress' => (int)$proj['progress'],
-        ];
+// Handle restore request via AJAX
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['restore_id'])) {
+    $restoreResult = $project->restoreProject($_POST['restore_id']);
+    if ($restoreResult) {
+        echo json_encode(['status' => 'success', 'message' => 'Project restored successfully!']);
+    } else {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to restore project.']);
     }
+    exit; // End the script execution after responding to AJAX
 }
 ?>
 
@@ -27,192 +26,168 @@ if ($recentlyDeletedProjects && count($recentlyDeletedProjects) > 0) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recently Deleted Projects</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        /* General styles */
+        /* General Styles */
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #6e7bff, #4e73df);
+            color: #fff;
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #1d2b64, #f8cdda);
-            color: #333;
-        }
-
-        /* Main container */
-        .container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 12px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Header styles */
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            position: relative;
-        }
-
-        h1::after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 3px;
-            background: #007bff;
-            margin: 10px auto 0;
-        }
-
-        /* Chart container */
-        .chart-container {
-            margin-bottom: 40px;
-        }
-
-        /* Project card styles */
-        .project {
             display: flex;
+            justify-content: center;
             align-items: center;
-            justify-content: space-between;
-            padding: 15px 20px;
+            min-height: 100vh;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            color: #fff;
             margin-bottom: 20px;
-            background: #f9f9f9;
+        }
+
+        /* Project List Container */
+        .project-list-container {
+            width: 80%;
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 30px;
+            background-color: #ffffff;
             border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .project:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        .project-list-container h2 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 15px;
         }
 
-        .project p {
-            margin: 5px 0;
-        }
-
-        .project-actions {
+        .project-item {
             display: flex;
-            gap: 15px;
-        }
-
-        .project a {
-            text-decoration: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-weight: bold;
-            color: #fff;
-            background: linear-gradient(90deg, #28a745, #218838);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-
-        .project a:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        /* Return button */
-        .cta-button button {
-            padding: 12px 20px;
-            background: linear-gradient(135deg, #ff0099, #493240);
-            color: #fff;
-            font-size: 1em;
-            font-weight: bold;
-            border: none;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
             border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.3s, transform 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease;
         }
 
-        .cta-button button:hover {
-            transform: scale(1.05);
-            background: linear-gradient(135deg, #e6008d, #3a2837);
+        .project-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .project-title {
+            font-size: 1.2rem;
+            color: #333;
+        }
+
+        .deleted-at {
+            font-size: 1rem;
+            color: #ff4e4e;
+        }
+
+        .no-projects {
+            font-size: 1.2rem;
+            color: #777;
+            margin-top: 20px;
+        }
+
+        /* Button Styles */
+        .back-button {
+            background-color: #4e73df;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            margin-top: 30px;
+        }
+
+        .back-button:hover {
+            background-color: #3b5bbf;
+        }
+
+        .restore-button {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .restore-button:hover {
+            background-color: #218838;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Recently Deleted Projects</h1>
 
-        <!-- Chart Section -->
-        <div class="chart-container">
-            <canvas id="progressChart"></canvas>
-        </div>
+    <h1>Recently Deleted Projects</h1>
 
-        <!-- Project List -->
+    <div class="project-list-container">
+        <h2>Deleted Projects in the Last 30 Days</h2>
+
         <?php if ($recentlyDeletedProjects && count($recentlyDeletedProjects) > 0): ?>
-            <?php foreach ($recentlyDeletedProjects as $proj): ?>
-                <?php
-                $title = htmlspecialchars($proj['title']);
-                $progress = htmlspecialchars($proj['progress']);
-                $status = htmlspecialchars($proj['status']);
-                $deletedAt = htmlspecialchars($proj['deleted_at']);
-                $id = htmlspecialchars($proj['id']);
-                ?>
-                <div class="project">
-                    <div>
-                        <p><strong>Title:</strong> <?= $title ?></p>
-                        <p><strong>Progress:</strong> <?= $progress ?>%</p>
-                        <p><strong>Status:</strong> <?= $status ?></p>
-                        <p><strong>Deleted At:</strong> <?= $deletedAt ?></p>
-                    </div>
-                    <div class="project-actions">
-                        <a href="restore.php?id=<?= $id ?>">Restore</a>
-                    </div>
-                </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <p>No recently deleted projects found.</p>
-        <?php endif; ?>
+            <ul>
+                <?php foreach ($recentlyDeletedProjects as $project): ?>
+                    <li class="project-item">
+                        <div class="project-title">
+                            <?php echo htmlspecialchars($project['title']); ?>
+                        </div>
+                        <div class="deleted-at">
+                            Deleted on: <?php echo htmlspecialchars($project['deleted_at']); ?>
+                        </div>
 
-        <!-- Return Button -->
-        <div class="cta-button" style="text-align: center;">
-            <button onclick="window.location.href='adminDashboard.php'">Return</button>
-        </div>
+                        <!-- Restore Button -->
+                        <button class="restore-button" onclick="restoreProject(<?php echo $project['id']; ?>)">Restore</button>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        <?php else: ?>
+            <p class="no-projects">No recently deleted projects found.</p>
+        <?php endif; ?>
     </div>
 
+    <a href="adminDashboard.php" class="back-button">Return to Dashboard</a>
+
     <script>
-        // Prepare data for the chart
-        const chartData = <?= json_encode($chartData) ?>;
-
-        // Extract labels and data for the chart
-        const labels = chartData.map(item => item.title);
-        const data = chartData.map(item => item.progress);
-
-        // Initialize Chart.js
-        const ctx = document.getElementById('progressChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Project Progress (%)',
-                    data: data,
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1,
-                }],
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top',
-                    },
+        // Function to restore the project using AJAX
+        function restoreProject(projectId) {
+            $.ajax({
+                type: "POST",
+                url: "recently_deleted.php",  // Same file to handle AJAX
+                data: {
+                    restore_id: projectId
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        title: {
-                            display: true,
-                            text: 'Progress (%)',
-                        },
-                    },
+                dataType: "json",
+                success: function(response) {
+                    if (response.status === 'success') {
+                        Swal.fire('Project Restored!', response.message, 'success').then(() => {
+                            location.reload(); // Reload the page after showing the success message
+                        });
+                    } else {
+                        Swal.fire('Error!', response.message, 'error');
+                    }
                 },
-            },
-        });
+                error: function() {
+                    Swal.fire('Error!', 'An error occurred while restoring the project.', 'error');
+                }
+            });
+        }
     </script>
+
 </body>
 </html>

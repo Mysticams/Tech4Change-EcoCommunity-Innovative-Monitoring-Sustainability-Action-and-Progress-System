@@ -2,171 +2,165 @@
 require_once 'Database.php';
 require_once 'CrudOperations.php';
 
-// Initialize the project variable
-$project = null;
-$proj = null;
-
-// Always instantiate the Database and Project objects
 $db = (new Database())->connect();
 $project = new Project($db);
 
-// Check if 'id' is passed in the URL (via GET)
-if (isset($_GET['id'])) {
-    $proj = $project->readSingle($_GET['id']); // Fetch project by ID
+// Check if an id is provided via GET request
+$id = $_GET['id'] ?? null;
+$proj = null; // Initialize $proj to avoid undefined variable warning
+
+if ($id) {
+    // Use the readSingle method to fetch the project
+    $proj = $project->readSingle($id);
+
+    if (!$proj) {
+        // If project is not found, show an alert and exit
+        echo "<script>Swal.fire('Project not found!', '', 'error');</script>";
+        exit;
+    }
+} else {
+    // If no ID is provided, show an alert and exit
+    echo "<script>Swal.fire('Invalid project ID!', '', 'error');</script>";
+    exit;
 }
 
-// Check if form is submitted (POST request)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
-    // Get form data
-    $id = $_POST['id'];
-    $title = $_POST['title'];
-    $description = $_POST['description'];
-    $progress = $_POST['progress'];
-    $status = $_POST['status'];
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Handle form submission to update the project
+    $title = $_POST['title'] ?? '';
+    $progress = $_POST['progress'] ?? 0;
 
-    // Call the update method of Project class
-    if ($project->update($id, $title, $description, $progress, $status)) {
-        echo "<div class='alert success'>Project Updated!</div>";
+    // Update project in the database
+    $updateResult = $project->update($id, $title, $progress); // Assuming you have an update method in CrudOperations.php
+
+    // Redirect with success or failure message
+    if ($updateResult) {
+        header('Location: list.php?success=true');
+        exit;
     } else {
-        echo "<div class='alert error'>Error updating project.</div>";
+        header('Location: list.php?success=false');
+        exit;
     }
 }
 ?>
 
-<h1>Update Project</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Project</title>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2980b9, #6dd5ed); /* Blue gradient background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
 
-<?php if ($proj): // Only display the form if project is found ?>
-    <form method="POST" action="">
-        <input type="hidden" name="id" value="<?= htmlspecialchars($proj['id']) ?>">
-        
-        <label for="title">Title:</label><br>
-        <input type="text" id="title" name="title" value="<?= htmlspecialchars($proj['title']) ?>" required><br>
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 2rem;
+        }
 
-        <label for="description">Description:</label><br>
-        <textarea id="description" name="description" required><?= htmlspecialchars($proj['description']) ?></textarea><br>
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
 
-        <label for="progress">Progress (%):</label><br>
-        <input type="number" id="progress" name="progress" value="<?= htmlspecialchars($proj['progress']) ?>" min="0" max="100"><br>
+        label {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+        }
 
-        <label for="status">Status:</label><br>
-        <select id="status" name="status">
-            <option value="active" <?= $proj['status'] == 'active' ? 'selected' : '' ?>>Active</option>
-            <option value="progress" <?= $proj['status'] == 'progress' ? 'selected' : '' ?>>In Progress</option>
-            <option value="completed" <?= $proj['status'] == 'completed' ? 'selected' : '' ?>>Completed</option>
-        </select><br>
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
 
-        <button type="submit" class="submit-button">Update</button>
-    </form>
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
 
-    <a href="userDashboard.php" class="cta-button">
-        <button class="return-button">Return</button>
-    </a>
-<?php else: ?>
-    <p>Project not found or invalid ID.</p>
-<?php endif; ?>
+        button:hover {
+            background-color: #2980b9;
+        }
 
-<!-- Styles -->
-<style>
-    /* General Body Styles */
-    body {
-        font-family: 'Arial', sans-serif;
-        background-color: #f9f9f9;
-        color: #333;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        box-sizing: border-box;
-    }
+        .error-message {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
 
-    h1 {
-        font-size: 2.5rem;
-        color: #333;
-        text-align: center;
-        margin-bottom: 30px;
-        font-weight: bold;
-    }
+<div class="form-container">
+    <h1>Update Project</h1>
 
-    /* Form Styling */
-    form {
-        background: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        width: 100%;
-        max-width: 500px;
-        margin-bottom: 30px;
-    }
+    <?php if ($proj): ?>
+        <!-- Only show this form if project data is retrieved successfully -->
+        <form action="update.php?id=<?php echo $proj['id']; ?>" method="POST">
+            <input type="hidden" name="id" value="<?php echo htmlspecialchars($proj['id']); ?>">
 
-    form input, form textarea, form select {
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 15px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-        font-size: 1rem;
-    }
+            <label for="title">Project Title:</label>
+            <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($proj['title']); ?>" required>
 
-    form input:focus, form textarea:focus, form select:focus {
-        border-color: #66c2b3;
-        outline: none;
-    }
+            <label for="progress">Progress (%):</label>
+            <input type="number" id="progress" name="progress" value="<?php echo htmlspecialchars($proj['progress']); ?>" required min="0" max="100">
 
-    .submit-button {
-        background-color: #66c2b3;
-        color: white;
-        padding: 12px 20px;
-        font-size: 1.1rem;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        width: 100%;
-        transition: background-color 0.3s ease;
-    }
+            <button type="submit">Update Project</button>
+        </form>
+    <?php else: ?>
+        <!-- If no project is found, show an error message -->
+        <p class="error-message">Project not found.</p>
+    <?php endif; ?>
+</div>
 
-    .submit-button:hover {
-        background-color: #4c9e92;
-    }
+<script>
+    // SweetAlert2 Success message if project updated successfully
+    <?php if (isset($_GET['success']) && $_GET['success'] == 'true'): ?>
+        Swal.fire({
+            title: 'Project Updated!',
+            text: 'Your project was updated successfully.',
+            icon: 'success',
+            confirmButtonText: 'Okay'
+        });
+    <?php endif; ?>
 
-    /* Alerts */
-    .alert {
-        padding: 10px;
-        margin-top: 20px;
-        border-radius: 5px;
-        text-align: center;
-    }
+    // SweetAlert2 Error message if project not found or invalid
+    <?php if (isset($_GET['success']) && $_GET['success'] == 'false'): ?>
+        Swal.fire({
+            title: 'Error!',
+            text: 'There was an issue updating the project.',
+            icon: 'error',
+            confirmButtonText: 'Try Again'
+        });
+    <?php endif; ?>
+</script>
 
-    .success {
-        background-color: #d4edda;
-        color: #155724;
-    }
-
-    .error {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-
-    /* Return Button */
-    .cta-button {
-        text-align: center;
-        width: 100%;
-    }
-
-    .return-button {
-        background-color: #FF00BF;
-        color: white;
-        padding: 12px 24px;
-        font-size: 1rem;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-    }
-
-    .return-button:hover {
-        background-color: #d600a0;
-    }
-</style>
+</body>
+</html>

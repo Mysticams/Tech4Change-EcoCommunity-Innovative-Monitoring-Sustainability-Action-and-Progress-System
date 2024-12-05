@@ -1,0 +1,161 @@
+<?php
+require_once 'Database.php';
+require_once 'CrudOperations.php';
+
+$db = (new Database())->connect();
+$project = new Project($db);
+
+// if id is provided via GET request
+$id = $_GET['id'] ?? null;
+$proj = null;
+
+if ($id) {
+
+    $proj = $project->readSingle($id);
+
+    if (!$proj) {
+        echo "<script>Swal.fire('Project not found!', '', 'error');</script>";
+        exit;
+    }
+} else {
+    echo "<script>Swal.fire('Invalid project ID!', '', 'error');</script>";
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // form submission to update the project
+    $title = $_POST['title'] ?? '';
+    $progress = $_POST['progress'] ?? 0;
+
+    $updateResult = $project->update($id, $title, $progress);
+    if ($updateResult) {
+        header('Location: list.php?success=true');
+        exit;
+    } else {
+        header('Location: list.php?success=false');
+        exit;
+    }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech4Change</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #2980b9, #6dd5ed);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            font-size: 2rem;
+        }
+
+        .form-container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        label {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .error-message {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="form-container">
+        <h1>Update Project</h1>
+
+        <?php if ($proj): ?>
+            <!-- project data is retrieved -->
+            <form action="update.php?id=<?php echo $proj['id']; ?>" method="POST">
+                <input type="hidden" name="id" value="<?php echo htmlspecialchars($proj['id']); ?>">
+
+                <label for="title">Project Title:</label>
+                <input type="text" id="title" name="title" value="<?php 
+                echo htmlspecialchars($proj['title']); ?>" required>
+
+                <label for="progress">Progress (%):</label>
+                <input type="number" id="progress" name="progress" value="<?php 
+                echo htmlspecialchars($proj['progress']); ?>" required min="0" max="100">
+
+                <button type="submit">Update Project</button>
+            </form>
+        <?php else: ?>
+            <p class="error-message">Project not found.</p>
+        <?php endif; ?>
+    </div>
+
+    <script>
+        <?php if (isset($_GET['success']) && $_GET['success'] == 'true'): ?>
+            Swal.fire({
+                title: 'Project Updated!',
+                text: 'Your project was updated successfully.',
+                icon: 'success',
+                confirmButtonText: 'Okay'
+            });
+        <?php endif; ?>
+
+        <?php if (isset($_GET['success']) && $_GET['success'] == 'false'): ?>
+            Swal.fire({
+                title: 'Error!',
+                text: 'There was an issue updating the project.',
+                icon: 'error',
+                confirmButtonText: 'Try Again'
+            });
+        <?php endif; ?>
+    </script>
+
+</body>
+
+</html>
